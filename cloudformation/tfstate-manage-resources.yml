@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: S3Bucket Name for tfstate Managements.
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9_-]*"
+  DynamoDBTableName:
+    Type: String
+    Description: DynamoDB TableName for tfstate access Managements.
+
+Resources:
+  tfS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AccessControl: BucketOwnerFullControl
+      BucketName: !Ref S3BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            NoncurrentVersionExpirationInDays: 30
+            Status: Enabled
+      VersioningConfiguration:
+        Status: Enabled
+
+  tfDynamoDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoDBTableName
+      AttributeDefinitions:
+        - AttributeName: "LockID"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "LockID"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "1"
+        WriteCapacityUnits: "1"
+      DeletionProtectionEnabled: false
