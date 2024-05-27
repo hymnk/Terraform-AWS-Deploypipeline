@@ -1,0 +1,10 @@
+# 事前にcfnで作成済みのリソース
+bucket = "s3-tf-dev"
+dynamodb_table = "dynamodb-tf-dev"
+
+# tfstateを管理するawsアカウントへアクセスできるProfile名
+profile = ""
+
+key = "state/ultcorp/dev/terraform.tfstate"
+encrypt = true
+region = "ap-northeast-1"
